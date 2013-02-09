@@ -1,60 +1,93 @@
 {
-  "name": "example_environment",
-  "description": "Chef-server example environment",
+  "name": "rpcs",
+  "description": "",
   "cookbook_versions": {
   },
   "json_class": "Chef::Environment",
   "chef_type": "environment",
   "default_attributes": {
+    "horizon": {
+      "theme": "Rackspace"
+    },
+    "package_component": "folsom"
   },
   "override_attributes": {
-    "developer_mode": false,
+    "hardware" : {
+      "install_oem": true
+    },
     "monitoring" : {
       "metric_provider" : "collectd",
       "procmon_provider" : "monit"
     },
+    "mysql": {
+      "allow_remote_root": true,
+      "root_network_acl": "%",
+      "tunable": {
+        "log_queries_not_using_index": false
+      }
+    },
+   "keystone": {
+      "tenants": [
+         "admin",
+         "service",
+         "openstack"
+      ],
+      "users":{
+         "admin": {
+            "password": "w3CEM3pUCru2raHu",
+            "roles":{
+               "admin": [
+                  "admin"
+               ]
+            }
+         }
+      },
+      "admin_user": "admin"
+   }, 
+    "osops": {
+      "apply_patches": true
+    },
+    "developer_mode": false,
     "glance": {
-      "image_upload": true,
-      "images": ["cirros", "precise"]
+      "api": {
+      },
+      "images": [
+        "cirros",
+        "precise"
+      ],
+      "image_upload": false
     },
     "nova": {
-      "ratelimit" : {
-        "api" : { "enabled" : true },
-        "volume" : { "enabled" : true }
+      "config": {
+        "ram_allocation_ratio": 1.0,
+        "cpu_allocation_ratio": 1.0,
+        "start_guests_on_host_boot": false,
+        "resume_guests_state_on_host_boot": false,
+        "use_single_default_gateway": false
       },
-      "libvirt": { "virt_type": "qemu" },
+      "network": {
+        "fixed_range": "10.241.0.0/23",
+        "public_interface": "br0",
+        "multi_host": true,
+        "dmz_cidr": "10.128.0.0/24"
+      },
       "networks": [
         {
-            "label": "public",
-            "ipv4_cidr": "10.10.100.0/24",
-            "num_networks": "1",
-            "network_size": "255",
-            "bridge": "br100",
-            "bridge_dev": "eth0.100",
-            "dns1": "8.8.8.8",
-            "dns2": "8.8.4.4"
-        },
-        {
-            "label": "private",
-            "ipv4_cidr": "172.16.101.0/24",
-            "num_networks": "1",
-            "network_size": "255",
-            "bridge": "br101",
-            "bridge_dev": "eth0.101",
-            "dns1": "8.8.8.8",
-            "dns2": "8.8.4.4"
+          "num_networks": "1",
+          "bridge": "br0",
+          "label": "public",
+          "bridge_dev": "eth0",
+          "dns1": "8.8.8.8",
+          "dns2": "4.2.2.2",
+          "network_size": "510",
+          "ipv4_cidr": "10.241.0.0/23"
         }
       ]
     },
-    "mysql": {
-      "allow_remote_root": true,
-      "root_network_acl": "%"
-    },
     "osops_networks": {
-      "nova": "192.168.1.0/24",
-      "public": "192.168.1.0/24",
-      "management": "192.168.1.0/24"
-    },
-    "package_component": "folsom"
+      "management": "10.240.0.0/24",
+      "nova": "10.240.0.0/24",
+      "public": "10.240.0.0/24"
+    }
   }
 }
