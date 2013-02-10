@@ -1,0 +1,62 @@
+environments:
+  - rpcs
+ 
+roles:
+  - allinone:
+  - base:
+  - cinder-all:
+  - cinder-api:
+  - cinder-scheduler:
+  - cinder-setup:
+  - cinder-volume:
+  - collectd-client:
+  - collectd-server:
+  - glance-api:
+  - glance-registry:
+  - glance:
+  - graphite:
+  - ha-controller:
+  - haproxy:
+  - horizon-server:
+  - jenkins-allinone:
+  - jenkins-compute:
+  - jenkins-controller:
+  - jenkins-glance:
+  - jenkins-mysql-master:
+  - jenkins-nova-api:
+  - keystone-api:
+  - keystone:
+  - mysql-master:
+  - nova-api-ec2:
+  - nova-api-os-compute:
+  - nova-api:
+  - nova-cert:
+  - nova-controller:
+  - nova-misc-services:
+  - nova-network-setup:
+  - nova-network:
+  - nova-scheduler:
+  - nova-setup:
+  - nova-vncproxy:
+  - nova-volume:
+  - openstack-ha:
+  - rabbitmq-server:
+  - rsyslog-client:
+  - rsyslog-server:
+  - single-compute:
+  - single-controller-cinder:
+  - single-controller:
+  - swift-account-server:
+  - swift-all-in-one:
+  - swift-container-server:
+  - swift-management-server:
+  - swift-object-server:
+  - swift-proxy-server:
+
+nodes:
+  - controller01:
+    - roles[single-controller], recipe[chef-client]
+    - -E rpcs --bootstrap-version 10.18.2-2
+  - compute01 compute02 compute03:
+    - roles[single-compute], recipe[chef-client]
+    - -E rpcs --bootstrap-version 10.18.2-2
