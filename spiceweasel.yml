@@ -1,3 +1,11 @@
+nodes:
+  - controller01:
+    - roles[single-controller], recipe[chef-client]
+    - -E rpcs --bootstrap-version 10.18.2-2
+  - compute01 compute02 compute03:
+    - roles[single-compute], recipe[chef-client]
+    - -E rpcs --bootstrap-version 10.18.2-2
+
 environments:
   - rpcs
  
@@ -52,11 +60,3 @@ roles:
   - swift-management-server:
   - swift-object-server:
   - swift-proxy-server:
-
-nodes:
-  - controller01:
-    - roles[single-controller], recipe[chef-client]
-    - -E rpcs --bootstrap-version 10.18.2-2
-  - compute01 compute02 compute03:
-    - roles[single-compute], recipe[chef-client]
-    - -E rpcs --bootstrap-version 10.18.2-2
