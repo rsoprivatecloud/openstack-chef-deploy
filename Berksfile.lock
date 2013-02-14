@@ -1,4 +1,4 @@
-cookbook 'apt', :locked_version => '1.8.4'
+cookbook 'apt', :locked_version => '1.5.0'
 cookbook 'apache2', :locked_version => '1.5.0'
 cookbook 'aws', :locked_version => '0.100.6'
 cookbook 'build-essential', :locked_version => '1.3.4'

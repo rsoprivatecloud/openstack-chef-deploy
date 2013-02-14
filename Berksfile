@@ -1,7 +1,7 @@
 site :opscode
 
 # Opscode Cookbooks
-cookbook 'apt'
+cookbook 'apt', '~> 1.5.0'
 cookbook 'apache2'
 cookbook 'aws'
 cookbook 'build-essential'
