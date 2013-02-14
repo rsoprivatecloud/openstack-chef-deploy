@@ -27,7 +27,7 @@ $ gem install berkshelf
 
 #### Upload cookbooks to Chef
 ``` bash
-$ berk upload
+$ berks upload
 ```
 
 ### Spiceweasel
