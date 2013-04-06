@@ -11,8 +11,9 @@
      - python-libvirt
      - iptables-persistent
      - curl
+     - git
 
-  - name: make /opt/rpcs directory
+  - name: create /opt/rpcs directory
     file: dest=/opt/rpcs state=directory
   - name: download chef server image
     get_url: url=http://c390813.r13.cf1.rackcdn.com/chef-server.qcow2
@@ -47,15 +48,47 @@
   - name: save iptables rules
     command: /usr/sbin/service iptables-persistent save
 
-  - name: upload chef server template for kvm
+  - name: check for running chef-server vm
+    shell: virsh list | grep chef-server | grep running
+    register: chef_server_check
+    ignore_errors: yes
+  - name: copy chef server template for kvm
     copy: src=./controller/files/chef-server.xml dest=/opt/rpcs/chef-server.xml
+    when_failed: $chef_server_check
   - name: start chef server
     shell: virsh define /opt/rpcs/chef-server.xml &&
            virsh autostart chef-server &&
            virsh start chef-server
+    when_failed: $chef_server_check
 
-  - name: upload knife.rb
+  - name: create /root/.chef directory
+    file: dest=/root/.chef state=directory
+  - name: copy knife.rb to controller
     copy: src=./controller/files/knife.rb dest=/root/.chef/knife.rb
 
+  # TODO(dw): This isn't working.
+  #           SSH keys need to be created and uploaded to the Chef Server VM
+  - name: generate new client keys for chef (rack)
+    command: ssh rack@169.254.123.2 "knife client reregister rack -f .chef/rack.pem"
+  - name: generate new client keys for chef (chef-validator)
+    command: ssh rack@169.254.123.2 "knife client reregister chef-validator -f .chef/validation.pem"
+  - name: publicly expose chef-validator.pem
+    command: ssh rack@169.254.123.2 "sudo cp .chef/validation.pem /usr/share/chef-server-api/public; sudo chmod +r /usr/share/chef-server-api/public/validation.pem"
+  - name: create rpcs environment
+    command: ssh rack@169.254.123.2 "knife environment create -d rpcs &>-"
+  - name: create admin chef client for controller
+    shell: ssh rack@169.254.123.2 "yes | knife client delete controller &>-; knife client create controller" | tail -n+2 > /root/.chef/controller.pem
+
+  - name: install chef on controller
+    shell: bash <(curl -sL http://opscode.com/chef/install.sh) -v 11.2.0
+  - name: download chef validation key
+    shell: mkdir -p /etc/chef; wget -nv http://169.254.123.2:4000/validation.pem -O /etc/chef/validation.pem
+
+  - name: clone openstack cookbooks
+    command: git clone --recursive -b v3.0.1 http://github.com/rcbops/chef-cookbooks /opt/rpcs/chef-cookbooks
+  - name: upload cookbooks to chef server
+    command: knife cookbook upload -o /opt/rpcs/chef-cookbooks/cookbooks -a
+  - name: upload roles to chef server
+    command: knife role from file /opt/rpcs/chef-cookbooks/roles/*.rb
 
 # vim: ts=2 sw=2 expandtab:
