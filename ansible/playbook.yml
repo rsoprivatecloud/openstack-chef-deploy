@@ -1,0 +1,61 @@
+---
+# Chef deployinator
+
+- hosts: controllers
+  tasks:
+  - name: install kvm dependencies
+    apt: pkg=$item update_cache=yes state=installed
+    with_items:
+     - qemu-kvm
+     - libvirt-bin
+     - python-libvirt
+     - iptables-persistent
+     - curl
+
+  - name: make /opt/rpcs directory
+    file: dest=/opt/rpcs state=directory
+  - name: download chef server image
+    get_url: url=http://c390813.r13.cf1.rackcdn.com/chef-server.qcow2
+             dest=/opt/rpcs/chef-server.qcow2
+
+  - name: remove default libvirt network
+    shell: /usr/bin/virsh net-autostart default --disable &&
+           /usr/bin/virsh net-destroy default &&
+           /usr/bin/virsh net-undefine default
+    ignore_errors: yes
+ 
+  - name: enable ipv4 forwarding
+    sysctl: name=net.ipv4.ip_forward value=1 state=present
+
+  - name: check for existing chefbr0
+    command: grep chefbr0 /etc/network/interfaces
+    register: chefbr0_check
+    ignore_errors: yes
+  - name: create chef bridge chefbr0
+    shell: echo '$FILE(./controller/files/chefbr0.txt)' >> /etc/network/interfaces
+    when_failed: $chefbr0_check
+  - name: bring chefbr0 interface up
+    command: /sbin/ifup chefbr0
+    when_failed: $chefbr0_check
+
+  # TODO(dw): Idempotency here
+  - name: add nat rules for chef server
+    command: /sbin/iptables -t nat -A PREROUTING -s 10.240.0.0/24 -p tcp
+             --dport 4000 -j DNAT --to-dest 169.254.123.2
+  - name: add masquerade rule
+    command: /sbin/iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+  - name: save iptables rules
+    command: /usr/sbin/service iptables-persistent save
+
+  - name: upload chef server template for kvm
+    copy: src=./controller/files/chef-server.xml dest=/opt/rpcs/chef-server.xml
+  - name: start chef server
+    shell: virsh define /opt/rpcs/chef-server.xml &&
+           virsh autostart chef-server &&
+           virsh start chef-server
+
+  - name: upload knife.rb
+    copy: src=./controller/files/knife.rb dest=/root/.chef/knife.rb
+
+
+# vim: ts=2 sw=2 expandtab:
