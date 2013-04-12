@@ -8,6 +8,9 @@ from fabric.colors import red, yellow, green
 from fabric.contrib import files
 from fabric.utils import puts
 
+# needed to pick up ProxyCommand from config
+env.use_ssh_config = True
+
 def install_kvm():
     "Installs KVM/Libvirt"
     puts(green('Installing KVM'))
