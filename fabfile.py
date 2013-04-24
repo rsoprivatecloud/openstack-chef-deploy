@@ -18,7 +18,7 @@ def install_kvm():
     sudo('apt-get -qq update')
     sudo('apt-get install -yq qemu-kvm libvirt-bin python-libvirt curl')
     
-def create_chef_server(url='http:////c390813.r13.cf1.rackcdn.com/chef-server.qcow2',
+def create_chef_server(url='http://c390813.r13.cf1.rackcdn.com/chef-server.qcow2',
                        xml_definition='files/chef-server.xml',
                        mgmt_network='10.240.0.0/24'):
     "Creates and configures Chef Server on the controller node"
