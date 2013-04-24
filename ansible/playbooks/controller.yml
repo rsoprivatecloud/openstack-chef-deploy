@@ -1,0 +1,17 @@
+---
+# Tasks for the OpenStack controller
+
+- hosts: controller
+  tasks:
+  - name: create rpcs directory
+    file: dest=${rpcs_dir} state=directory
+  - name: download chef server package
+    get_url: url=${chef_server_deb_url}
+             dest=${rpcs_dir}
+             force=yes
+  - name: install chef server
+    command: dpkg -i ${rpcs_dir}/${chef_server_deb_url}
+  - name: run chef-server-ctl reconfigure
+    command: chef-server-ctl reconfigure
+
+# vim: ts=2 sw=2 expandtab:
