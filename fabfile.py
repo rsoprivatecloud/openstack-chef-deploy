@@ -64,10 +64,11 @@ def create_chef_server(url='http://c390813.r13.cf1.rackcdn.com/chef-server.qcow2
     puts(green('Copying SSH key to Chef Server VM'))
     if not files.exists('/root/.ssh/id_rsa', use_sudo=True):
         sudo('ssh-keygen -b 2048 -N "" -f /root/.ssh/id_rsa -t rsa -q')
-    while sudo('ssh-copy-id -i /root/.ssh/id_rsa.pub rack@169.254.123.2', warn_only=True).return_code is 1:
+    while 'No route to host' in sudo('ssh-keyscan 169.254.123.2 >> /root/.ssh/known_hosts'):
         sleep_time = 10
         puts(yellow('Unable to connect to Chef Server VM. Retrying in %ss...' % sleep_time))
         time.sleep(sleep_time)
+    sudo('ssh-copy-id -i /root/.ssh/id_rsa.pub rack@169.254.123.2')
 
     puts(green('Creating Chef validation and controller client keys'))
     sudo('mkdir -p /root/.chef', warn_only=True)
@@ -115,7 +116,7 @@ def upload_cookbooks(url="http://github.com/rcbops/chef-cookbooks",
         sudo('rm -rf %s' % directory)
 
     puts('Cloning chef-cookbooks repository')
-    sudo('git clone -q --recursive -b %s %s %s' % (branch, url, directory))
+    sudo('git clone -q --recursive --depth 1 -b %s %s %s' % (branch, url, directory))
 
     puts(green("Uploading cookbooks and roles"))
     sudo('knife cookbook upload -c /root/.chef/knife.rb -a')
