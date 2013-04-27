@@ -25,18 +25,19 @@ def install_chef_server(chef_server_rb='files/chef-server.rb'):
     puts(green('Configuring and starting Chef Server 11'))
     sudo('chef-server-ctl reconfigure')
  
-def configure_knife():
+def configure_knife(chef_server_url="https://localhost:444"):
     "Installs Chef and configures Knife"
+    knife_template = 'files/knife.rb.j2'
+    assert os.path.exists(knife_template), \
+        'Knife configuration template not found at %s' % knife_template
 
     puts(green('Installing Chef'))
     sudo('bash <(wget -O - http://opscode.com/chef/install.sh)')
 
     puts(green('Configuring knife'))
-    sudo('md5sum /etc/chef-server/admin.pem | knife configure -i -y --defaults '
-         '-u controller -s https://localhost:444 '
-         '--admin-client-key /etc/chef-server/admin.pem '
-         '--validation-key /etc/chef-server/chef-validator.pem '
-         '-r /opt/rpcs/chef-cookbooks/cookbooks')
+    sudo('mkdir /root/.chef', warn_only=True)
+    files.upload_template(knife_template, '/root/.chef/knife.rb',
+                          context=locals(), use_sudo=True)
 
 def upload_cookbooks(url="http://github.com/rcbops/chef-cookbooks",
                      branch="v3.0.1"):
@@ -51,7 +52,8 @@ def upload_cookbooks(url="http://github.com/rcbops/chef-cookbooks",
         sudo('rm -rf %s' % directory)
 
     puts('Cloning chef-cookbooks repository')
-    sudo('git clone -q --recursive --depth 1 -b %s %s %s' % (branch, url, directory))
+    sudo('git clone -q --recursive --depth 1 -b %s %s %s'
+         % (branch, url, directory))
 
     puts(green("Uploading cookbooks and roles"))
     sudo('knife cookbook upload -c /root/.chef/knife.rb -a')
