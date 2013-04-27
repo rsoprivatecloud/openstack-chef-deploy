@@ -11,8 +11,25 @@ from fabric.utils import puts
 # needed to pick up ProxyCommand from config
 env.use_ssh_config = True
 
+def controller():
+    """Helper task for bootstrapping a controller
+
+    1. Installs Chef Server 11
+    2. Installs and configures knife
+    3. Uploads rcbops/chef-cookbooks and roles
+
+    """
+    install_chef_server()
+    configure_knife()
+    upload_cookbooks()
+
 def install_chef_server(chef_server_rb='files/chef-server.rb'):
-    "Installs Chef Server 11"
+    """Installs Chef Server 11
+
+    Args:
+        chef_server_rb: Local path to Chef Server config file
+
+    """
     chef_server_deb_url = 'https://opscode-omnibus-packages.s3.amazonaws.com'\
         + '/ubuntu/12.04/x86_64/chef-server_11.0.8-1.ubuntu.12.04_amd64.deb'
     puts(green('Downloading Chef Server 11 package'))
@@ -27,7 +44,12 @@ def install_chef_server(chef_server_rb='files/chef-server.rb'):
     sudo('chef-server-ctl reconfigure')
  
 def configure_knife(chef_server_url="https://localhost:444"):
-    "Installs Chef and configures Knife"
+    """Installs Chef and configures Knife
+
+    Args:
+        chef_server_url: Chef Server URL for knife.rb template
+
+    """
     knife_template = 'files/knife.rb.j2'
     assert os.path.exists(knife_template), \
         'Knife configuration template not found at %s' % knife_template
@@ -43,11 +65,19 @@ def configure_knife(chef_server_url="https://localhost:444"):
 def upload_cookbooks(url="http://github.com/rcbops/chef-cookbooks",
                      branch="v3.0.1",
                      directory="/opt/rpcs/chef-cookbooks"):
-    "Uploads Chef cookbooks from a git repository"
+    """Uploads Chef cookbooks from a git repository
+
+    Args:
+        url: URL for Git repository
+        branch: Branch of Git repo to use
+        directory: Path to clone repository into
+
+    """
     puts(green("Installing git"))
     sudo('apt-get -qq update')
     sudo('apt-get install -qy git')
 
+    # We might want to be more careful here
     if files.exists(directory):
         sudo('rm -rf %s' % directory)
 
@@ -55,10 +85,13 @@ def upload_cookbooks(url="http://github.com/rcbops/chef-cookbooks",
     sudo('git clone -q --recursive --depth 1 -b %s %s %s'
          % (branch, url, directory))
 
-    puts(green("Uploading cookbooks and roles"))
+    puts(green("Uploading cookbooks"))
     sudo('knife cookbook upload -c /root/.chef/knife.rb -a')
-    sudo('knife role from file %s/roles/*.rb -c /root/.chef/knife.rb'
-         % directory)
+
+    if files.exists('%s/roles' % directory):
+        puts(green("Creating roles"))
+        sudo('knife role from file %s/roles/*.rb -c /root/.chef/knife.rb'
+             % directory)
 
 def bootstrap(spiceweasel_yml):
     """Bootstrap environment based on a Spiceweasel template
@@ -83,6 +116,7 @@ def bootstrap(spiceweasel_yml):
             puts(green('Uploading Spiceweasel template %s' % spiceweasel_yml))
             put(spiceweasel_yml, tmpfile)
 
+            # TODO(dw): Incomplete. This will pipe into bash when working
             puts(green('Running Spiceweasel'))
             sudo('./spiceweasel -c /root/.chef/knife.rb %s' % tmpfile)
 
