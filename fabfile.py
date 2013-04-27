@@ -3,10 +3,9 @@
 import os
 import time
 
-from fabric.api import env, run, put, cd, prompt, sudo, roles
-from fabric.colors import red, yellow, green
+from fabric.api import env, put, sudo
+from fabric.colors import green
 from fabric.contrib import files
-from fabric.exceptions import CommandTimeout
 from fabric.utils import puts
 
 # needed to pick up ProxyCommand from config
