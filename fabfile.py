@@ -44,7 +44,8 @@ def upload_cookbooks(url="http://github.com/rcbops/chef-cookbooks",
     "Uploads OpenStack Chef cookbooks"
     directory = "/opt/rpcs/chef-cookbooks"
 
-    puts(green("Installing dependencies"))
+    puts(green("Installing git"))
+    sudo('apt-get -qq update')
     sudo('apt-get install -qy git')
 
     if files.exists(directory):
