@@ -3,7 +3,7 @@
 import os
 import time
 
-from fabric.api import env, put, sudo
+from fabric.api import env, put, sudo, cd
 from fabric.colors import green
 from fabric.contrib import files
 from fabric.utils import puts
@@ -12,6 +12,7 @@ from fabric.utils import puts
 env.use_ssh_config = True
 
 def install_chef_server(chef_server_rb='files/chef-server.rb'):
+    "Installs Chef Server 11"
     chef_server_deb_url = 'https://opscode-omnibus-packages.s3.amazonaws.com'\
         + '/ubuntu/12.04/x86_64/chef-server_11.0.8-1.ubuntu.12.04_amd64.deb'
     puts(green('Downloading Chef Server 11 package'))
@@ -40,10 +41,9 @@ def configure_knife(chef_server_url="https://localhost:444"):
                           context=locals(), use_sudo=True)
 
 def upload_cookbooks(url="http://github.com/rcbops/chef-cookbooks",
-                     branch="v3.0.1"):
-    "Uploads OpenStack Chef cookbooks"
-    directory = "/opt/rpcs/chef-cookbooks"
-
+                     branch="v3.0.1",
+                     directory="/opt/rpcs/chef-cookbooks"):
+    "Uploads Chef cookbooks from a git repository"
     puts(green("Installing git"))
     sudo('apt-get -qq update')
     sudo('apt-get install -qy git')
@@ -57,4 +57,33 @@ def upload_cookbooks(url="http://github.com/rcbops/chef-cookbooks",
 
     puts(green("Uploading cookbooks and roles"))
     sudo('knife cookbook upload -c /root/.chef/knife.rb -a')
-    sudo('knife role from file /opt/rpcs/chef-cookbooks/roles/*.rb -c /root/.chef/knife.rb')
+    sudo('knife role from file %s/roles/*.rb -c /root/.chef/knife.rb'
+         % directory)
+
+def bootstrap(spiceweasel_yml):
+    """Bootstrap environment based on a Spiceweasel template
+
+    Args:
+        spiceweasel_yml: Local path to the Spiceweasel infrastructure template.
+
+    """
+
+    # TODO(dw): If the user does not provide a Spiceweasel template,
+    #           generate one by querying using an API Extension, ID,
+    #           and filter
+
+    if os.path.exists(spiceweasel_yml):
+        tmpfile = '/tmp/spiceweasel.yml'
+
+        # Use the ruby binaries embedded with Chef. This might not be smart.
+        with cd('/opt/chef/embedded/bin'):
+            puts(green('Installing Spiceweasel'))
+            sudo('./gem install spiceweasel --no-ri --no-rdoc')
+
+            puts(green('Uploading Spiceweasel template %s' % spiceweasel_yml))
+            put(spiceweasel_yml, tmpfile)
+
+            puts(green('Running Spiceweasel'))
+            sudo('./spiceweasel -c /root/.chef/knife.rb %s' % tmpfile)
+
+        run('rm -f %s' % tmpfile)
