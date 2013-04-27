@@ -34,7 +34,7 @@ def configure_knife():
 
     puts(green('Configuring knife'))
     sudo('md5sum /etc/chef-server/admin.pem | knife configure -i -y --defaults '
-         '-u controller -s https://localhost:444'
+         '-u controller -s https://localhost:444 '
          '--admin-client-key /etc/chef-server/admin.pem '
          '--validation-key /etc/chef-server/chef-validator.pem '
          '-r /opt/rpcs/chef-cookbooks/cookbooks')
