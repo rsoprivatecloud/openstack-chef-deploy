@@ -26,25 +26,18 @@ def install_chef_server(chef_server_rb='files/chef-server.rb'):
     puts(green('Configuring and starting Chef Server 11'))
     sudo('chef-server-ctl reconfigure')
  
-def configure_knife(chef_server_url='http://169.254.123.2:4000/',
-                    knife_template='files/knife.rb.tpl'):
+def configure_knife():
     "Installs Chef and configures Knife"
-    assert os.path.exists(knife_template), 'Knife configuration template not found at %s' % knife_template
-    
-    if not chef_server_url.endswith('/'):
-        chef_server_url += '/'
-    if not chef_server_url.startswith('http'):
-        chef_server_url = 'http://' + chef_server_url
 
     puts(green('Installing Chef'))
-    sudo('bash <(curl -sL http://opscode.com/chef/install.sh)')
+    sudo('bash <(wget -O - http://opscode.com/chef/install.sh)')
 
-    puts(green('Creating knife config'))
-    sudo('mkdir -p /root/.chef', warn_only=True)
-    files.upload_template(knife_template, '/root/.chef/knife.rb', context=locals(), use_sudo=True)   
-
-    sudo('mkdir -p /etc/chef', warn_only=True)
-    sudo('wget -nv %svalidation.pem -O /etc/chef/validation.pem' % chef_server_url)
+    puts(green('Configuring knife'))
+    sudo('md5sum /etc/chef-server/admin.pem | knife configure -i -y --defaults '
+         '-u controller -s https://localhost:444'
+         '--admin-client-key /etc/chef-server/admin.pem '
+         '--validation-key /etc/chef-server/chef-validator.pem '
+         '-r /opt/rpcs/chef-cookbooks/cookbooks')
 
 def upload_cookbooks(url="http://github.com/rcbops/chef-cookbooks",
                      branch="v3.0.1"):
