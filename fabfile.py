@@ -43,7 +43,7 @@ def install_chef_server(chef_server_rb='files/chef-server.rb'):
     puts(green('Configuring and starting Chef Server 11'))
     sudo('chef-server-ctl reconfigure')
  
-def configure_knife(chef_server_url="https://localhost:444"):
+def configure_knife(chef_server_url="https://localhost:4000"):
     """Installs Chef and configures Knife
 
     Args:
