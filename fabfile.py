@@ -11,6 +11,7 @@ from fabric.utils import puts
 # needed to pick up ProxyCommand from config
 env.use_ssh_config = True
 
+
 def controller():
     """Helper task for bootstrapping a controller
 
@@ -22,6 +23,12 @@ def controller():
     install_chef_server()
     configure_knife()
     upload_cookbooks()
+
+    #TODO(ramsey): Edit sudoers with NOPASSWD for rack user
+    #TODO(ramsey): Generate SSH key for root. Store in a variable for use in other places (i.e. compute nodes)?
+    #TODO(ramsey): Disable IPv6
+    #TODO(ramsey): Generate MOTD
+    #TODO(ramsey): Add all the things to bachrc (i.e. export EDITOR=vim, source /root/.novarc)
 
 def install_chef_server(chef_server_rb='files/chef-server.rb'):
     """Installs Chef Server 11
@@ -62,6 +69,18 @@ def configure_knife(chef_server_url="https://localhost:4000"):
     files.upload_template(knife_template, '/root/.chef/knife.rb',
                           context=locals(), use_sudo=True)
 
+def install_packages(packages=["git","curl","dsh","vim"])
+    """Installs packages from apt repo
+
+    Args:
+        packages: Package name that will be installed
+
+    """
+    puts(green('Installing %s' % " ".join(packages)))
+    sudo('apt-get -qq update')
+    sudo('apt-get install -qy '%s' % " ".join(packages))
+
+
 def upload_cookbooks(url="http://github.com/rcbops/chef-cookbooks",
                      branch="v3.0.1",
                      directory="/opt/rpcs/chef-cookbooks"):
@@ -73,9 +92,6 @@ def upload_cookbooks(url="http://github.com/rcbops/chef-cookbooks",
         directory: Path to clone repository into
 
     """
-    puts(green("Installing git"))
-    sudo('apt-get -qq update')
-    sudo('apt-get install -qy git')
 
     # We might want to be more careful here
     if files.exists(directory):
