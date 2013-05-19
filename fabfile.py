@@ -28,7 +28,6 @@ def controller():
     #TODO(ramsey): Generate SSH key for root. Store in a variable for use in other places (i.e. compute nodes)?
     #TODO(ramsey): Disable IPv6
     #TODO(ramsey): Generate MOTD
-    #TODO(ramsey): Add all the things to bachrc (i.e. export EDITOR=vim, source /root/.novarc)
 
 def install_chef_server(chef_server_rb='files/chef-server.rb'):
     """Installs Chef Server 11
@@ -68,10 +67,19 @@ def configure_knife(chef_server_url="https://localhost:4000"):
     sudo('mkdir /root/.chef', warn_only=True)
     files.upload_template(knife_template, '/root/.chef/knife.rb',
                           context=locals(), use_sudo=True)
+
+def motd():
+    """Adds standard MOTD"""
+    motd_file = 'files/20-openstack'
+    puts(green('Updating MOTD'))
+    files.upload_template(motd_file, '/etc/update-motd.d/20-openstack',
+                          context=locals(), use_sudo=True, mirror_local_mode=True)   
+
 def bashrc():
     """Adds all the things to bachrc"""
     bashrcloc = '/root/.bashrc'
     puts(green('Adding the things to bashrc'))
+    #TODO(ramsey): change this to use files.append instead of echo 
     sudo('echo "export EDITOR=vim\nsource /root/.novarc" >> %s' % bashrcloc)
 
 
