@@ -68,6 +68,12 @@ def configure_knife(chef_server_url="https://localhost:4000"):
     sudo('mkdir /root/.chef', warn_only=True)
     files.upload_template(knife_template, '/root/.chef/knife.rb',
                           context=locals(), use_sudo=True)
+def bashrc():
+    """Adds all the things to bachrc"""
+    bashrcloc = '/root/.bashrc'
+    puts(green('Adding the things to bashrc'))
+    sudo('echo "export EDITOR=vim\nsource /root/.novarc" >> %s' % bashrcloc)
+
 
 def install_packages(packages=["git","curl","dsh","vim"]):
     """Installs packages from apt repo
