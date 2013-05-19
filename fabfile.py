@@ -27,7 +27,6 @@ def controller():
     #TODO(ramsey): Edit sudoers with NOPASSWD for rack user
     #TODO(ramsey): Generate SSH key for root. Store in a variable for use in other places (i.e. compute nodes)?
     #TODO(ramsey): Disable IPv6
-    #TODO(ramsey): Generate MOTD
 
 def install_chef_server(chef_server_rb='files/chef-server.rb'):
     """Installs Chef Server 11
@@ -67,6 +66,13 @@ def configure_knife(chef_server_url="https://localhost:4000"):
     sudo('mkdir /root/.chef', warn_only=True)
     files.upload_template(knife_template, '/root/.chef/knife.rb',
                           context=locals(), use_sudo=True)
+
+
+def ssh_key():
+    """Generates controller's SSH key"""
+    puts(green('Generating SSH key'))
+    sudo('ssh-keygen -t rsa -N "" -f /root/.ssh/id_rsa')
+#TODO: What's the best way to keep this key for later use on compute nodes?
 
 def motd():
     """Adds standard MOTD"""
