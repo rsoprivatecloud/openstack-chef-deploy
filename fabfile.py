@@ -23,7 +23,7 @@ def controller():
     install_chef_server()
     configure_knife()
     upload_cookbooks()
-
+    install_packages()
     #TODO(ramsey): Edit sudoers with NOPASSWD for rack user
     #TODO(ramsey): Generate SSH key for root. Store in a variable for use in other places (i.e. compute nodes)?
     #TODO(ramsey): Disable IPv6
@@ -69,7 +69,7 @@ def configure_knife(chef_server_url="https://localhost:4000"):
     files.upload_template(knife_template, '/root/.chef/knife.rb',
                           context=locals(), use_sudo=True)
 
-def install_packages(packages=["git","curl","dsh","vim"])
+def install_packages(packages=["git","curl","dsh","vim"]):
     """Installs packages from apt repo
 
     Args:
@@ -78,7 +78,7 @@ def install_packages(packages=["git","curl","dsh","vim"])
     """
     puts(green('Installing %s' % " ".join(packages)))
     sudo('apt-get -qq update')
-    sudo('apt-get install -qy '%s' % " ".join(packages))
+    sudo('apt-get install -qy %s' % " ".join(packages))
 
 
 def upload_cookbooks(url="http://github.com/rcbops/chef-cookbooks",
