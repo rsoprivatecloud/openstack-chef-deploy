@@ -1,9 +1,9 @@
 nodes:
 - controller01:
-    run_list: roles[single-controller]
+    run_list: role[single-controller]
     options: -E rpcs
 - compute01 compute02 compute03:
-    run_list: roles[single-compute]
+    run_list: role[single-compute]
     options: -E rpcs
 environments:
 - rpcs:
