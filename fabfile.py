@@ -11,6 +11,7 @@ from fabric.utils import puts
 # needed to pick up ProxyCommand from config
 env.use_ssh_config = True
 
+
 def controller():
     """Helper task for bootstrapping a controller
 
@@ -22,6 +23,8 @@ def controller():
     install_chef_server()
     configure_knife()
     upload_cookbooks()
+    install_packages()
+    #TODO(ramsey): Generate SSH key for root. <-DONE Store in a variable for use in other places (i.e. compute nodes)?
 
 def install_chef_server(chef_server_rb='files/chef-server.rb'):
     """Installs Chef Server 11
@@ -62,6 +65,45 @@ def configure_knife(chef_server_url="https://localhost:4000"):
     files.upload_template(knife_template, '/root/.chef/knife.rb',
                           context=locals(), use_sudo=True)
 
+def disable_ipv6():
+    """Disables IPv6"""
+    puts(green('Disabling IPv6'))
+    files.append('/etc/sysctl.conf', ["net.ipv6.conf.all.disable_ipv6 = 1", "net.ipv6.conf.default.disable_ipv6 = 1", "net.ipv6.conf.lo.disable_ipv6 = 1"], use_sudo=True)
+    sudo('sysctl -p')
+
+
+def ssh_key():
+    """Generates controller's SSH key"""
+    puts(green('Generating SSH key'))
+    sudo('ssh-keygen -t rsa -N "" -f /root/.ssh/id_rsa')
+#TODO: What's the best way to keep this key for later use on compute nodes?
+
+def motd():
+    """Adds standard MOTD"""
+    motd_file = 'files/20-openstack'
+    puts(green('Updating MOTD'))
+    files.upload_template(motd_file, '/etc/update-motd.d/20-openstack',
+                          context=locals(), use_sudo=True, mirror_local_mode=True)   
+
+def bashrc():
+    """Adds all the things to bachrc"""
+    bashrcloc = '/root/.bashrc'
+    puts(green('Adding the things to bashrc'))
+    files.append(bashrcloc, ["export EDITOR=vim", "source /root/.novarc"],  use_sudo=True)
+
+
+def install_packages(packages=["git","curl","dsh","vim"]):
+    """Installs packages from apt repo
+
+    Args:
+        packages: Package name that will be installed
+
+    """
+    puts(green('Installing %s' % " ".join(packages)))
+    sudo('apt-get -qq update')
+    sudo('apt-get install -qy %s' % " ".join(packages))
+
+
 def upload_cookbooks(url="http://github.com/rcbops/chef-cookbooks",
                      branch="v3.0.1",
                      directory="/opt/rpcs/chef-cookbooks"):
@@ -73,9 +115,6 @@ def upload_cookbooks(url="http://github.com/rcbops/chef-cookbooks",
         directory: Path to clone repository into
 
     """
-    puts(green("Installing git"))
-    sudo('apt-get -qq update')
-    sudo('apt-get install -qy git')
 
     # We might want to be more careful here
     if files.exists(directory):
