@@ -24,9 +24,7 @@ def controller():
     configure_knife()
     upload_cookbooks()
     install_packages()
-    #TODO(ramsey): Edit sudoers with NOPASSWD for rack user
-    #TODO(ramsey): Generate SSH key for root. Store in a variable for use in other places (i.e. compute nodes)?
-    #TODO(ramsey): Disable IPv6
+    #TODO(ramsey): Generate SSH key for root. <-DONE Store in a variable for use in other places (i.e. compute nodes)?
 
 def install_chef_server(chef_server_rb='files/chef-server.rb'):
     """Installs Chef Server 11
@@ -67,6 +65,12 @@ def configure_knife(chef_server_url="https://localhost:4000"):
     files.upload_template(knife_template, '/root/.chef/knife.rb',
                           context=locals(), use_sudo=True)
 
+def disable_ipv6():
+    """Disables IPv6"""
+    puts(green('Disabling IPv6'))
+    files.append('/etc/sysctl.conf', ["net.ipv6.conf.all.disable_ipv6 = 1", "net.ipv6.conf.default.disable_ipv6 = 1", "net.ipv6.conf.lo.disable_ipv6 = 1"], use_sudo=True)
+    sudo('sysctl -p')
+
 
 def ssh_key():
     """Generates controller's SSH key"""
@@ -85,8 +89,7 @@ def bashrc():
     """Adds all the things to bachrc"""
     bashrcloc = '/root/.bashrc'
     puts(green('Adding the things to bashrc'))
-    #TODO(ramsey): change this to use files.append instead of echo 
-    sudo('echo "export EDITOR=vim\nsource /root/.novarc" >> %s' % bashrcloc)
+    files.append(bashrcloc, ["export EDITOR=vim", "source /root/.novarc"],  use_sudo=True)
 
 
 def install_packages(packages=["git","curl","dsh","vim"]):
