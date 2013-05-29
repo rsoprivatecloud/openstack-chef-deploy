@@ -11,18 +11,19 @@ from fabric.utils import puts
 # needed to pick up ProxyCommand from config
 env.use_ssh_config = True
 
-def controller():
+def controller(branch="grizzly"):
     """Helper task for bootstrapping a controller
 
-    1. Installs Chef Server 11
-    2. Installs and configures knife
-    3. Uploads rcbops/chef-cookbooks and roles
+    1. Installs RabbitMQ
+    2. Installs Chef Server 11
+    3. Installs and configures knife
+    4. Uploads rcbops/chef-cookbooks and roles
 
     """
     install_rabbitmq()
     install_chef_server()
     configure_knife()
-    upload_cookbooks()
+    upload_cookbooks(branch=branch)
 
 def install_rabbitmq():
     "Installs RabbitMQ and configures it for Chef Server 11"
@@ -73,7 +74,7 @@ def configure_knife(chef_server_url="https://localhost:4000"):
                           context=locals(), use_sudo=True)
 
 def upload_cookbooks(url="http://github.com/rcbops/chef-cookbooks",
-                     branch="v3.0.1",
+                     branch="grizzly",
                      directory="/opt/rpcs/chef-cookbooks"):
     """Uploads Chef cookbooks from a git repository
 
