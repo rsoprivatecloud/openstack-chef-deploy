@@ -1,93 +1,65 @@
 {
   "name": "rpcs",
-  "description": "",
-  "cookbook_versions": {
-  },
+  "description": "Environment for Rackspace Private Cloud (Grizzly)",
+  "cookbook_versions": {},
   "json_class": "Chef::Environment",
   "chef_type": "environment",
   "default_attributes": {
     "horizon": {
       "theme": "Rackspace"
-    },
-    "package_component": "folsom"
+    }
   },
   "override_attributes": {
-    "hardware" : {
+    "hardware": {
       "install_oem": true
     },
+    "enable_monit": true,
     "monitoring" : {
       "metric_provider" : "collectd",
       "procmon_provider" : "monit"
     },
-    "mysql": {
-      "allow_remote_root": true,
-      "root_network_acl": "%",
-      "tunable": {
-        "log_queries_not_using_index": false
-      }
-    },
-   "keystone": {
-      "tenants": [
-         "admin",
-         "service",
-         "openstack"
-      ],
-      "users":{
-         "admin": {
-            "password": "w3CEM3pUCru2raHu",
-            "roles":{
-               "admin": [
-                  "admin"
-               ]
-            }
-         }
-      },
-      "admin_user": "admin"
-   }, 
-    "osops": {
-      "apply_patches": true
-    },
-    "developer_mode": false,
     "glance": {
-      "api": {
-      },
       "images": [
         "cirros",
         "precise"
       ],
-      "image_upload": false
+      "image" : {
+        "cirros": "https://launchpad.net/cirros/trunk/0.3.0/+download/cirros-0.3.0-x86_64-disk.img",
+        "precise": "http://cloud-images.ubuntu.com/precise/current/precise-server-cloudimg-amd64-disk1.img"
+      },
+      "image_upload": true
     },
     "nova": {
-      "config": {
+      "config" : { 
         "ram_allocation_ratio": 1.0,
-        "cpu_allocation_ratio": 1.0,
+        "cpu_allocation_ratio": 4.0,
         "start_guests_on_host_boot": false,
         "resume_guests_state_on_host_boot": false,
         "use_single_default_gateway": false
       },
-      "network": {
-        "fixed_range": "10.241.0.0/23",
-        "public_interface": "br0",
-        "multi_host": true,
-        "dmz_cidr": "10.128.0.0/24"
-      },
       "networks": [
         {
-          "num_networks": "1",
-          "bridge": "br0",
           "label": "public",
           "bridge_dev": "eth0",
           "dns1": "8.8.8.8",
-          "dns2": "4.2.2.2",
-          "network_size": "510",
-          "ipv4_cidr": "10.241.0.0/23"
+          "dns2": "8.8.4.4",
+          "num_networks": "1",
+          "ipv4_cidr": "10.241.0.0/24",
+          "network_size": "255",
+          "bridge": "br0"
         }
       ]
     },
+    "mysql": {
+      "allow_remote_root": true,
+      "tunable": {
+        "log_queries_not_using_index": false
+      }
+    },
     "osops_networks": {
-      "management": "10.240.0.0/24",
       "nova": "10.240.0.0/24",
-      "public": "10.240.0.0/24"
+      "public": "10.240.0.0/24",
+      "management": "10.240.0.0/24"
     }
   }
 }
