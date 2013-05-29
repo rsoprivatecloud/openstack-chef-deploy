@@ -19,9 +19,19 @@ def controller():
     3. Uploads rcbops/chef-cookbooks and roles
 
     """
+    install_rabbitmq()
     install_chef_server()
     configure_knife()
     upload_cookbooks()
+
+def install_rabbitmq():
+    "Installs RabbitMQ and configures it for Chef Server 11"
+    # Be smarter here
+    sudo('apt-get -qq update')
+    sudo('apt-get install -qy rabbitmq-server')
+    sudo('rabbitmqctl add_vhost /chef')
+    sudo('rabbitmqctl add_user chef chuc93prethugucR')
+    sudo("rabbitmqctl set_permissions -p /chef chef '.*' '.*' '.*'")
 
 def install_chef_server(chef_server_rb='files/chef-server.rb'):
     """Installs Chef Server 11
