@@ -29,6 +29,23 @@
       },
       "image_upload": true
     },
+    "keystone": {
+      "tenants": [
+        "admin",
+        "service"
+       ],
+       "users": {
+         "admin": {
+           "password": "__CHANGE_ME__",
+           "roles": {
+             "admin": [
+               "admin"
+              ]
+            }
+         }
+       },
+       "admin_user": "admin"
+    },
     "nova": {
       "config" : { 
         "ram_allocation_ratio": 1.0,
