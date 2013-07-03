@@ -12,10 +12,6 @@
     "package_component": "folsom"
   },
   "override_attributes": {
-    "rpc-support": {
-      "raxdc": true,
-      "escalation": false
-    },
     "hardware" : {
       "install_oem": true
     },
