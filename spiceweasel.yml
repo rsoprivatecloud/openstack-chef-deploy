@@ -5,6 +5,5 @@ nodes:
 - compute01 compute02 compute03:
     run_list: role[single-compute]
     options: -E rpcs
->>>>>>> no-chef-vm
 environments:
 - rpcs:
