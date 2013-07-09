@@ -42,7 +42,10 @@
             }
          }
       },
-      "admin_user": "admin"
+      "admin_user": "admin",
+      "pki": {
+        "enabled": false
+      }
    }, 
     "osops": {
       "apply_patches": true
