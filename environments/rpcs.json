@@ -33,21 +33,21 @@
       "tenants": [
         "admin",
         "service"
-       ],
-       "users": {
-         "admin": {
-           "password": "__CHANGE_ME__",
-           "roles": {
-             "admin": [
-               "admin"
-              ]
-            }
-         }
-       },
-       "admin_user": "admin",
-       "pki": {
-         "enabled": false
-       }
+      ],
+      "users": {
+        "admin": {
+          "password": "__CHANGE_ME__",
+          "roles": {
+            "admin": [
+              "admin"
+            ]
+          }
+        }
+      },
+      "admin_user": "admin",
+      "pki": {
+        "enabled": false
+      }
     },
     "nova": {
       "config" : { 
