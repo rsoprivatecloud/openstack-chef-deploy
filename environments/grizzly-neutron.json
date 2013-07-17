@@ -1,0 +1,83 @@
+{
+  "name": "rpcs",
+  "description": "Environment for Rackspace Private Cloud (Grizzly)",
+  "cookbook_versions": {},
+  "json_class": "Chef::Environment",
+  "chef_type": "environment",
+  "default_attributes": {
+    "horizon": {
+      "theme": "Rackspace"
+    }
+  },
+  "override_attributes": {
+    "hardware": {
+      "install_oem": true
+    },
+    "enable_monit": true,
+    "monitoring" : {
+      "metric_provider" : "collectd",
+      "procmon_provider" : "monit"
+    },
+    "glance": {
+      "images": [
+        "cirros",
+        "precise"
+      ],
+      "image" : {
+        "cirros": "https://launchpad.net/cirros/trunk/0.3.0/+download/cirros-0.3.0-x86_64-disk.img",
+        "precise": "http://cloud-images.ubuntu.com/precise/current/precise-server-cloudimg-amd64-disk1.img"
+      },
+      "image_upload": false
+    },
+    "keystone": {
+      "tenants": [
+        "admin",
+        "service"
+       ],
+       "users": {
+         "admin": {
+           "password": "__CHANGE_ME__",
+           "roles": {
+             "admin": [
+               "admin"
+              ]
+            }
+         }
+       },
+       "admin_user": "admin"
+    },
+    "nova": {
+      "config" : { 
+        "ram_allocation_ratio": 1.0,
+        "cpu_allocation_ratio": 2.0,
+        "start_guests_on_host_boot": false,
+        "resume_guests_state_on_host_boot": false,
+        "use_single_default_gateway": false
+      },
+      "network": {
+        "provider": "quantum",
+      },
+    },
+    "quantum": {
+      "ovs": {
+        "provider_networks": {
+          "ph-eth1": {
+            "bridge": "br-eth1",
+            "vlans": "1000:1024"
+          }
+        },
+        "network_type": "gre"
+    },
+    "mysql": {
+      "allow_remote_root": true,
+      "tunable": {
+        "log_queries_not_using_index": false
+      }
+    },
+    "osops_networks": {
+      "nova": "10.240.0.0/24",
+      "public": "10.240.0.0/24",
+      "management": "10.240.0.0/24"
+    }
+  }
+}

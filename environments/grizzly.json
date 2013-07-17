@@ -5,6 +5,9 @@
   "json_class": "Chef::Environment",
   "chef_type": "environment",
   "default_attributes": {
+    "horizon": {
+      "theme": "Rackspace"
+    }
   },
   "override_attributes": {
     "hardware": {
@@ -30,21 +33,18 @@
       "tenants": [
         "admin",
         "service"
-      ],
-      "users": {
-        "admin": {
-          "password": "__CHANGE_ME__",
-          "roles": {
-            "admin": [
-              "admin"
-            ]
-          }
-        }
-      },
-      "admin_user": "admin",
-      "pki": {
-        "enabled": false
-      }
+       ],
+       "users": {
+         "admin": {
+           "password": "__CHANGE_ME__",
+           "roles": {
+             "admin": [
+               "admin"
+              ]
+            }
+         }
+       },
+       "admin_user": "admin"
     },
     "nova": {
       "config" : { 
