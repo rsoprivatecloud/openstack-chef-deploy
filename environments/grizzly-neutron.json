@@ -55,7 +55,7 @@
         "use_single_default_gateway": false
       },
       "network": {
-        "provider": "quantum",
+        "provider": "quantum"
       },
     },
     "quantum": {
@@ -67,6 +67,7 @@
           }
         },
         "network_type": "gre"
+      }
     },
     "mysql": {
       "allow_remote_root": true,
