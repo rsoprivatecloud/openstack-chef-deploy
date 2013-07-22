@@ -60,12 +60,13 @@
     },
     "quantum": {
       "ovs": {
-        "provider_networks": {
-          "ph-eth1": {
-            "bridge": "br-eth1",
-            "vlans": "1000:1024"
+        "provider_networks": [
+          {
+            "label": "ph-eth0",
+            "bridge": "br-eth0",
+            "vlans": "1024:1024"
           }
-        },
+        ],
         "network_type": "gre"
       }
     },
