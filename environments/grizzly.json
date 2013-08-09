@@ -31,20 +31,23 @@
         "admin",
         "service"
        ],
-       "users": {
-         "admin": {
-           "password": "__CHANGE_ME__",
-           "roles": {
-             "admin": [
-               "admin"
-              ]
-            }
-         }
-       },
-       "admin_user": "admin"
+      "users": {
+        "admin": {
+          "password": "__CHANGE_ME__",
+          "roles": {
+            "admin": [
+              "admin"
+             ]
+           }
+        }
+      },
+      "admin_user": "admin",
+      "pki": {
+        "enabled": false
+      }
     },
     "nova": {
-      "config" : { 
+      "config": { 
         "ram_allocation_ratio": 1.0,
         "cpu_allocation_ratio": 2.0,
         "resume_guests_state_on_host_boot": false,
