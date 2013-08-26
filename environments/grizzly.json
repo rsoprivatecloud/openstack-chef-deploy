@@ -50,8 +50,21 @@
       "config": { 
         "ram_allocation_ratio": 1.0,
         "cpu_allocation_ratio": 2.0,
+        "disk_allocation_ratio": 1.0,
         "resume_guests_state_on_host_boot": false,
         "use_single_default_gateway": false
+      },
+      "platform": {
+        "nova_scheduler_default_filters": [
+          "AvailabilityZoneFilter",
+          "RamFilter",
+          "ComputeFilter",
+          "CoreFilter",
+          "SameHostFilter",
+          "DifferentHostFilter",
+          "RetryFilter",
+          "DiskFilter"
+        ]
       },
       "network": {
         "public_interface": "br0",
