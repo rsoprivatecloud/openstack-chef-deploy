@@ -1,4 +1,0 @@
----
-# This is the top-level playbook which deploys OpenStack
-
-- include: playbooks/controller.yml
