@@ -139,9 +139,17 @@ function create_environment {
 	fi
 }
 
+function run_parts {
+	if [[ -d "$1" ]]; then
+		run-parts -v "$1"
+	fi
+}
+
 function run_spiceweasel {
 	local CHEF_BIN_DIR="/opt/chef/embedded/bin"
 	local CHEF_GEM="${CHEF_BIN_DIR}/gem"
+
+	run_parts pre-bootstrap.d
 
 	if [[ -r "$1" ]]; then
 		if is_rhel; then
@@ -156,6 +164,8 @@ function run_spiceweasel {
 		${CHEF_GEM} install --no-ri --no-rdoc spiceweasel
 		${CHEF_BIN_DIR}/spiceweasel -e --novalidation -T 3600 "$1"
 	fi
+
+	run_parts post-bootstrap.d
 }
 
 function cleanup {
