@@ -121,8 +121,6 @@ function upload_cookbooks {
 	add_opscode_cookbook "cron" "1.2.6"
 	add_opscode_cookbook "chef-client" "3.0.6"
 
-	# TODO(dw): Source additional cookbooks from extras.d
-
 	knife cookbook upload -a
 	knife role from file ${RPCS_REPO_DIR}/roles/*.rb
 }
