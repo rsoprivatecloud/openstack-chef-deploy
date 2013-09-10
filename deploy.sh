@@ -118,8 +118,8 @@ function upload_cookbooks {
 	git submodule update
 	cd -
 
-	add_opscode_cookbook "cron"
-	add_opscode_cookbook "chef-client"
+	add_opscode_cookbook "cron" "1.2.6"
+	add_opscode_cookbook "chef-client" "3.0.6"
 
 	# TODO(dw): Source additional cookbooks from extras.d
 
