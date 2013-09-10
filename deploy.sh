@@ -2,21 +2,21 @@
 
 set -e
 
-RPCS_DIR=${RPCS_DIR:-"/opt/rpcs"}
+export RPCS_DIR=${RPCS_DIR:-"/opt/rpcs"}
 
-RPCS_REPO_DIR=${RPCS_DIR}/chef-cookbooks
-RPCS_COOKBOOK_DIR=${RPCS_REPO_DIR}/cookbooks
-RPCS_COOKBOOK_REPO=${RPCS_COOKBOOK_REPO:-"https://github.com/rcbops/chef-cookbooks"}
-RPCS_COOKBOOK_BRANCH=${RPCS_COOKBOOK_BRANCH:-"grizzly"}
-RPCS_COOKBOOK_TAG=${RPCS_COOKBOOK_TAG:-"v4.1.0"}
+export RPCS_REPO_DIR=${RPCS_DIR}/chef-cookbooks
+export RPCS_COOKBOOK_DIR=${RPCS_REPO_DIR}/cookbooks
+export RPCS_COOKBOOK_REPO=${RPCS_COOKBOOK_REPO:-"https://github.com/rcbops/chef-cookbooks"}
+export RPCS_COOKBOOK_BRANCH=${RPCS_COOKBOOK_BRANCH:-"grizzly"}
+export RPCS_COOKBOOK_TAG=${RPCS_COOKBOOK_TAG:-"v4.1.0"}
 
-RPCS_TMP=$(mktemp -d /tmp/rpcs-XXXXXXX)
+export RPCS_TMP=$(mktemp -d /tmp/rpcs-XXXXXXX)
 
 function get_distro {
 	if [[ -f "/etc/redhat-release" ]]; then
-		DISTRO="rhel"
+		export DISTRO="rhel"
 	elif [[ -f "/etc/debian_version" ]]; then
-		DISTRO="ubuntu"
+		export DISTRO="ubuntu"
 	else
 		echo "Unrecognized distribution. Aborting."
 		exit 1
