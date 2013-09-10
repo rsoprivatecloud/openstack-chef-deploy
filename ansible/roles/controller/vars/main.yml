@@ -1,2 +1,0 @@
-rpcs_dir: /opt/rpcs/
-chef_server_deb_url: https://opscode-omnibus-packages.s3.amazonaws.com/ubuntu/12.04/x86_64/chef-server_11.0.6-1.ubuntu.12.04_amd64.deb
