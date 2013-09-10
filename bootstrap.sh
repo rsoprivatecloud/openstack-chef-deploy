@@ -1,11 +1,16 @@
 #!/usr/bin/env bash
 
+set -e
+
 RPCS_DIR=${RPCS_DIR:-"/opt/rpcs"}
 
-COOKBOOK_DIR=${RPCS_DIR}/chef-cookbooks
-COOKBOOK_REPO=${COOKBOOK_REPO:-"https://github.com/rcbops/chef-cookbooks"}
-COOKBOOK_BRANCH=${COOKBOOK_BRANCH:-"grizzly"}
-COOKBOOK_TAG=${COOKBOOK_TAG:-"v4.1.0"}
+RPCS_REPO_DIR=${RPCS_DIR}/chef-cookbooks
+RPCS_COOKBOOK_DIR=${RPCS_REPO_DIR}/cookbooks
+RPCS_COOKBOOK_REPO=${RPCS_COOKBOOK_REPO:-"https://github.com/rcbops/chef-cookbooks"}
+RPCS_COOKBOOK_BRANCH=${RPCS_COOKBOOK_BRANCH:-"grizzly"}
+RPCS_COOKBOOK_TAG=${RPCS_COOKBOOK_TAG:-"v4.1.0"}
+
+RPCS_TMP=$(mktemp -d /tmp/rpcs-XXXXXXX)
 
 function get_distro {
 	if [[ -f "/etc/redhat-release" ]]; then
@@ -62,10 +67,9 @@ function install_chef_server {
 		service rabbitmq-server start
 		rpm -Uvh $CHEF_SERVER_RPM
 	else
-		local TMP_DEB="/tmp/chef_server.deb"
+		local TMP_DEB="${RPCS_TMP}/chef_server.deb"
 		wget -O $TMP_DEB $CHEF_SERVER_DEB
 		dpkg -i $TMP_DEB
-		rm $TMP_DEB
 	fi
 
 	rabbitmq_user $CHEF_RMQ_USER $CHEF_RMQ_PW $CHEF_RMQ_VHOST
@@ -99,7 +103,7 @@ function configure_knife {
 	validation_key           '/etc/chef-server/chef-validator.pem'
 	chef_server_url          'https://localhost:4000'
 	cache_options( :path => '/root/.chef/checksums' )
-	cookbook_path            [ '${COOKBOOK_DIR}/cookbooks' ]
+	cookbook_path            [ '${RPCS_COOKBOOK_DIR}' ]
 	EOF
 }
 
@@ -107,25 +111,26 @@ function upload_cookbooks {
 	local RPCS_COOKBOOK_BASE_URL="http://cookbooks.howopenstack.org"
 	maybe_mkdir $RPCS_DIR
 
-	git clone --recursive -b $COOKBOOK_BRANCH $COOKBOOK_REPO ${COOKBOOK_DIR}
-	cd $COOKBOOK_DIR
+	git clone --recursive -b $RPCS_COOKBOOK_BRANCH $RPCS_COOKBOOK_REPO $RPCS_REPO_DIR
+	cd $RPCS_REPO_DIR
 	# TODO(dw): Check to see if COOKBOOK_TAG was set
-	git checkout $COOKBOOK_TAG
+	git checkout $RPCS_COOKBOOK_TAG
 	git submodule update
 	cd -
 
-	add_cookbook_from_github "opscode-cookbooks/cron"
-	add_cookbook_from_github "opscode-cookbooks/chef-client"
+	add_opscode_cookbook "cron"
+	add_opscode_cookbook "chef-client"
 
 	# TODO(dw): Source additional cookbooks from extras.d
 
 	knife cookbook upload -a
-	knife role from file ${COOKBOOK_DIR}/roles/*.rb
+	knife role from file ${RPCS_REPO_DIR}/roles/*.rb
 }
 
-function add_cookbook_from_github {
-	local GIT_REPO="$1"
-	git clone --depth 1 "https://github.com/${GIT_REPO}.git" "${COOKBOOK_DIR}/cookbooks/${GIT_REPO#*/}"
+function add_opscode_cookbook {
+	local COOKBOOK_TARBALL="${RPCS_TMP}/${1}.tar.gz"
+	knife cookbook site download -f $COOKBOOK_TARBALL "$1" "$2"
+	tar xf $COOKBOOK_TARBALL -C $RPCS_COOKBOOK_DIR
 }
 
 function create_environment {
@@ -152,6 +157,14 @@ function run_spiceweasel {
 		${CHEF_BIN_DIR}/spiceweasel -e --novalidation -T 3600 "$1"
 	fi
 }
+
+function cleanup {
+	if [[ -d "${RPCS_TMP}" ]]; then
+		rm -rf ${RPCS_TMP}
+	fi
+}
+
+trap cleanup EXIT
 
 get_distro
 install_dependencies
