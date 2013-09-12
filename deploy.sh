@@ -9,7 +9,7 @@ export RPCS_COOKBOOK_REPO=${RPCS_COOKBOOK_REPO:-"https://github.com/rcbops/chef-
 export RPCS_COOKBOOK_BRANCH=${RPCS_COOKBOOK_BRANCH:-"grizzly"}
 
 # Git tag to deploy from. If not set, it will default to the latest stable release.
-# Set to "none" to not checkout a tag and deploy directly from a branch.
+# Set to "none" to not checkout a tag and deploy from HEAD of RPCS_COOKBOOK_BRANCH.
 export RPCS_COOKBOOK_TAG=${RPCS_COOKBOOK_TAG:-"v4.1.0"}
 
 export RPCS_TMP=$(mktemp -d /tmp/rpcs-XXXXXXX)
