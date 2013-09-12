@@ -3,11 +3,13 @@
 set -e
 
 export RPCS_DIR=${RPCS_DIR:-"/opt/rpcs"}
-
 export RPCS_REPO_DIR=${RPCS_DIR}/chef-cookbooks
 export RPCS_COOKBOOK_DIR=${RPCS_REPO_DIR}/cookbooks
 export RPCS_COOKBOOK_REPO=${RPCS_COOKBOOK_REPO:-"https://github.com/rcbops/chef-cookbooks"}
 export RPCS_COOKBOOK_BRANCH=${RPCS_COOKBOOK_BRANCH:-"grizzly"}
+
+# Git tag to deploy from. If not set, it will default to the latest stable release.
+# Set to "none" to not checkout a tag and deploy directly from a branch.
 export RPCS_COOKBOOK_TAG=${RPCS_COOKBOOK_TAG:-"v4.1.0"}
 
 export RPCS_TMP=$(mktemp -d /tmp/rpcs-XXXXXXX)
@@ -111,11 +113,13 @@ function upload_cookbooks {
 	maybe_mkdir $RPCS_DIR
 
 	git clone --recursive -b $RPCS_COOKBOOK_BRANCH $RPCS_COOKBOOK_REPO $RPCS_REPO_DIR
-	cd $RPCS_REPO_DIR
-	# TODO(dw): Check to see if COOKBOOK_TAG was set
-	git checkout $RPCS_COOKBOOK_TAG
-	git submodule update
-	cd -
+	
+	if [[ "$RPCS_COOKBOOK_TAG" != "none" ]]; then
+		cd $RPCS_REPO_DIR
+		git checkout $RPCS_COOKBOOK_TAG
+		git submodule update
+		cd -
+	fi
 
 	add_opscode_cookbook "cron" "1.2.6"
 	add_opscode_cookbook "chef-client" "3.0.6"
