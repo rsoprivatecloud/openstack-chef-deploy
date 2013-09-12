@@ -34,10 +34,10 @@ function maybe_mkdir {
 }
 
 function install_dependencies {
-        if is_rhel; then
+	if is_rhel; then
 		rpm -Uvh "http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm"
 		local INSTALL="yum install"
-        else
+	else
 		apt-get update
 		local INSTALL="apt-get install"
 	fi
