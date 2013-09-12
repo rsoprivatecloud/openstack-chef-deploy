@@ -34,24 +34,28 @@ function maybe_mkdir {
 }
 
 function install_dependencies {
-	local RABBITMQ_DIR="/var/lib/rabbitmq"
-	local RABBITMQ_COOKIE="AnyAlphaNumericStringWillDo"
-	local RABBITMQ_COOKIE_FILE="${RABBITMQ_DIR}/.erlang.cookie"
+	local PACKAGES="rabbitmq-server git curl vim"
 
 	# TODO(dw): This is kinda gross and depends on the erlang cookie being
 	#           the default for the rabbitmq cookbook
+	local RABBITMQ_DIR="/var/lib/rabbitmq"
+	local RABBITMQ_COOKIE_FILE="${RABBITMQ_DIR}/.erlang.cookie"
+	local RABBITMQ_COOKIE="AnyAlphaNumericStringWillDo"
+
 	maybe_mkdir $RABBITMQ_DIR
 	echo -n $RABBITMQ_COOKIE > $RABBITMQ_COOKIE_FILE
 
 	if is_rhel; then
 		rpm -Uvh "http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm"
-		local INSTALL="yum install"
+		yum install -y $PACKAGES
+
+		# TODO(dw): Remove if preseeded erlang cookie process changes
+		chown -R rabbitmq. $RABBITMQ_DIR
+		chmod 0400 $RABBITMQ_COOKIE_FILE
 	else
 		apt-get update
-		local INSTALL="apt-get install"
+		apt-get install -y $PACKAGES
 	fi
-
-	$INSTALL -y rabbitmq-server git curl vim
 }
 
 function rabbitmq_user {
