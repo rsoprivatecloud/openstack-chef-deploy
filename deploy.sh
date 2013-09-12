@@ -108,7 +108,6 @@ function configure_knife {
 }
 
 function upload_cookbooks {
-	local RPCS_COOKBOOK_BASE_URL="http://cookbooks.howopenstack.org"
 	maybe_mkdir $RPCS_DIR
 
 	git clone --recursive -b $RPCS_COOKBOOK_BRANCH $RPCS_COOKBOOK_REPO $RPCS_REPO_DIR
