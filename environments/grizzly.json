@@ -54,8 +54,8 @@
         "resume_guests_state_on_host_boot": false,
         "use_single_default_gateway": false
       },
-      "platform": {
-        "nova_scheduler_default_filters": [
+      "scheduler": {
+        "default_filters": [
           "AvailabilityZoneFilter",
           "RamFilter",
           "ComputeFilter",
