@@ -47,6 +47,9 @@
       }
     },
     "nova": {
+      "libvirt": {
+        "vncserver_listen": "0.0.0.0"
+      },
       "config": { 
         "ram_allocation_ratio": 1.0,
         "cpu_allocation_ratio": 2.0,
