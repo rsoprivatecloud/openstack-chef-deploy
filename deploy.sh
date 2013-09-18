@@ -44,6 +44,8 @@ function install_dependencies {
 
 	maybe_mkdir $RABBITMQ_DIR
 	echo -n $RABBITMQ_COOKIE > $RABBITMQ_COOKIE_FILE
+	chmod 0400 $RABBITMQ_COOKIE_FILE
+
 
 	if is_rhel; then
 		rpm -Uvh "http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm"
@@ -51,7 +53,6 @@ function install_dependencies {
 
 		# TODO(dw): Remove if preseeded erlang cookie process changes
 		chown -R rabbitmq. $RABBITMQ_DIR
-		chmod 0400 $RABBITMQ_COOKIE_FILE
 	else
 		apt-get update
 		apt-get install -y $PACKAGES
