@@ -7,6 +7,9 @@
   "default_attributes": {
   },
   "override_attributes": {
+    "rabbitmq": {
+      "open_file_limit": 4096
+    },
     "hardware": {
       "install_oem": true
     },
