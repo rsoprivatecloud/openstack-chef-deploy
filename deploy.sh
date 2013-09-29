@@ -48,7 +48,7 @@ function install_dependencies {
 
 
 	if is_rhel; then
-		rpm -Uvh "http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm"
+		rpm -Uvh --replacepkgs "http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm"
 		yum install -y $PACKAGES
 
 		# TODO(dw): Remove if preseeded erlang cookie process changes
