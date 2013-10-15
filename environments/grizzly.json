@@ -8,7 +8,8 @@
   },
   "override_attributes": {
     "rabbitmq": {
-      "open_file_limit": 4096
+      "open_file_limit": 4096,
+      "use_distro_version": false
     },
     "hardware": {
       "install_oem": true
