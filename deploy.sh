@@ -14,7 +14,7 @@ export RPCS_COOKBOOK_TAG=${RPCS_COOKBOOK_TAG:-"v4.1.2"}
 
 export RPCS_TMP=$(mktemp -d /tmp/rpcs-XXXXXXX)
 
-function get_distro {
+get_distro() {
 	if [[ -f "/etc/redhat-release" ]]; then
 		export DISTRO="rhel"
 	elif [[ -f "/etc/debian_version" ]]; then
@@ -25,15 +25,15 @@ function get_distro {
 	fi
 }
 
-function is_rhel {
+is_rhel() {
 	[[ "$DISTRO" == "rhel" ]]
 }
 
-function maybe_mkdir {
+maybe_mkdir() {
 	[ -d "$1" ] || mkdir -p "$1"
 }
 
-function install_dependencies {
+install_dependencies() {
 	local PACKAGES="rabbitmq-server git curl vim"
 
 	# TODO(dw): This is kinda gross and depends on the erlang cookie being
@@ -49,28 +49,28 @@ function install_dependencies {
 
 	if is_rhel; then
 		rpm -Uvh --replacepkgs "http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm"
-		yum install -y $PACKAGES
+		yum install -y "$PACKAGES"
 
 		# TODO(dw): Remove if preseeded erlang cookie process changes
 		chown -R rabbitmq. $RABBITMQ_DIR
 	else
 		apt-get update
-		apt-get install -y $PACKAGES
+		apt-get install -y "$PACKAGES"
 	fi
 }
 
-function rabbitmq_user {
+rabbitmq_user() {
 	local RABBITMQ_CTL=/usr/sbin/rabbitmqctl
 	local USER=${1}
 	local PASSWORD=${2}
 	local VHOST=${3:-/}
 
-	$RABBITMQ_CTL add_vhost $VHOST
+	$RABBITMQ_CTL add_vhost "$VHOST"
 	$RABBITMQ_CTL add_user "${USER}" "${PASSWORD}"
 	$RABBITMQ_CTL set_permissions -p "${VHOST}" "${USER}" '.*' '.*' '.*'
 }
 
-function install_chef_server {
+install_chef_server() {
 	local OPSCODE_BASE_URL="https://opscode-omnibus-packages.s3.amazonaws.com"
 	local CHEF_RMQ_USER=chef
 	local CHEF_RMQ_VHOST=/chef
@@ -84,11 +84,11 @@ function install_chef_server {
 		rpm -Uvh $CHEF_SERVER_RPM
 	else
 		local TMP_DEB="${RPCS_TMP}/chef_server.deb"
-		wget -O $TMP_DEB $CHEF_SERVER_DEB
-		dpkg -i $TMP_DEB
+		wget -O "$TMP_DEB" $CHEF_SERVER_DEB
+		dpkg -i "$TMP_DEB"
 	fi
 
-	rabbitmq_user $CHEF_RMQ_USER $CHEF_RMQ_PW $CHEF_RMQ_VHOST
+	rabbitmq_user "$CHEF_RMQ_USER" "$CHEF_RMQ_PW" $CHEF_RMQ_VHOST
 
 	maybe_mkdir /etc/chef-server
 	cat > /etc/chef-server/chef-server.rb <<-EOF
@@ -103,7 +103,7 @@ function install_chef_server {
 	chef-server-ctl reconfigure
 }
 
-function configure_knife {
+configure_knife() {
 	local CHEF_INSTALL_SCRIPT="http://opscode.com/chef/install.sh"
 
 	bash <(wget -O - $CHEF_INSTALL_SCRIPT)
@@ -123,7 +123,7 @@ function configure_knife {
 	EOF
 }
 
-function upload_cookbooks {
+upload_cookbooks() {
 	maybe_mkdir $RPCS_DIR
 
 	git clone --recursive -b $RPCS_COOKBOOK_BRANCH $RPCS_COOKBOOK_REPO $RPCS_REPO_DIR
@@ -142,25 +142,25 @@ function upload_cookbooks {
 	knife role from file ${RPCS_REPO_DIR}/roles/*.rb
 }
 
-function add_opscode_cookbook {
+add_opscode_cookbook() {
 	local COOKBOOK_TARBALL="${RPCS_TMP}/${1}.tar.gz"
-	knife cookbook site download -f $COOKBOOK_TARBALL "$1" "$2"
-	tar xf $COOKBOOK_TARBALL -C $RPCS_COOKBOOK_DIR
+	knife cookbook site download -f "$COOKBOOK_TARBALL" "$1" "$2"
+	tar xf "$COOKBOOK_TARBALL" -C $RPCS_COOKBOOK_DIR
 }
 
-function create_environment {
+create_environment() {
 	if [[ -r "$1" ]]; then
 		knife environment from file "$1"
 	fi
 }
 
-function run_parts {
+run_parts() {
 	if [[ -d "$1" ]]; then
 		run-parts -v "$1"
 	fi
 }
 
-function run_spiceweasel {
+run_spiceweasel() {
 	local CHEF_BIN_DIR="/opt/chef/embedded/bin"
 	local CHEF_GEM="${CHEF_BIN_DIR}/gem"
 
@@ -183,9 +183,9 @@ function run_spiceweasel {
 	run_parts post-bootstrap.d
 }
 
-function cleanup {
+cleanup() {
 	if [[ -d "${RPCS_TMP}" ]]; then
-		rm -rf ${RPCS_TMP}
+		rm -rf "${RPCS_TMP}"
 	fi
 }
 
