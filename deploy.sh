@@ -2,17 +2,17 @@
 
 set -e
 
-export RPCS_DIR=${RPCS_DIR:-"/opt/rpcs"}
-export RPCS_REPO_DIR=${RPCS_DIR}/chef-cookbooks
-export RPCS_COOKBOOK_DIR=${RPCS_REPO_DIR}/cookbooks
-export RPCS_COOKBOOK_REPO=${RPCS_COOKBOOK_REPO:-"https://github.com/rcbops/chef-cookbooks"}
-export RPCS_COOKBOOK_BRANCH=${RPCS_COOKBOOK_BRANCH:-"grizzly"}
+RPCS_DIR=${RPCS_DIR:-"/opt/rpcs"}
+RPCS_REPO_DIR=${RPCS_DIR}/chef-cookbooks
+RPCS_COOKBOOK_DIR=${RPCS_REPO_DIR}/cookbooks
+RPCS_COOKBOOK_REPO=${RPCS_COOKBOOK_REPO:-"https://github.com/rcbops/chef-cookbooks"}
+RPCS_COOKBOOK_BRANCH=${RPCS_COOKBOOK_BRANCH:-"grizzly"}
 
 # Git tag to deploy from. If not set, it will default to the latest stable release.
 # Set to "none" to not checkout a tag and deploy from HEAD of RPCS_COOKBOOK_BRANCH.
-export RPCS_COOKBOOK_TAG=${RPCS_COOKBOOK_TAG:-"v4.1.2"}
+RPCS_COOKBOOK_TAG=${RPCS_COOKBOOK_TAG:-"v4.1.2"}
 
-export RPCS_TMP=$(mktemp -d /tmp/rpcs-XXXXXXX)
+RPCS_TMP=$(mktemp -d /tmp/rpcs-XXXXXXX)
 
 get_distro() {
 	if [[ -f "/etc/redhat-release" ]]; then
@@ -49,13 +49,14 @@ install_dependencies() {
 
 	if is_rhel; then
 		rpm -Uvh --replacepkgs "http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm"
-		yum install -y "$PACKAGES"
+		yum install -y $PACKAGES
 
 		# TODO(dw): Remove if preseeded erlang cookie process changes
 		chown -R rabbitmq. $RABBITMQ_DIR
 	else
+		export DEBIAN_FRONTEND=noninteractive
 		apt-get update
-		apt-get install -y "$PACKAGES"
+		apt-get install -y $PACKAGES
 	fi
 }
 
