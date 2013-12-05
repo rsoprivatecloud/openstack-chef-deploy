@@ -153,13 +153,13 @@ add_opscode_cookbook() {
 }
 
 create_environment() {
-	if [[ -r "$1" ]]; then
+	if [[ -n "$1" && -r "$1" ]]; then
 		knife environment from file "$1"
 	fi
 }
 
 run_parts() {
-	if [[ -d "$1" ]]; then
+	if [[ -n "$1" && -d "$1" ]]; then
 		run-parts -v "$1"
 	fi
 }
@@ -170,7 +170,7 @@ run_spiceweasel() {
 
 	run_parts pre-bootstrap.d
 
-	if [[ -r "$1" ]]; then
+	if [[ -n "$1" && -r "$1" ]]; then
 		if is_rhel; then
 			yum install -y make gcc libxml2-devel libxslt-devel 
 		else
