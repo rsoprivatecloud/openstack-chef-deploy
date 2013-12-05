@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 set -e
+set -x
 
 RPCS_DIR=${RPCS_DIR:-"/opt/rpcs"}
 RPCS_REPO_DIR=${RPCS_DIR}/chef-cookbooks
@@ -109,6 +110,8 @@ configure_knife() {
 
 	bash <(wget -O - $CHEF_INSTALL_SCRIPT)
 
+	local CHEF_SERVER_URL=https://$(ohai ipaddress | awk '/^ / {gsub(/ *\"/, ""); print; exit}'):4000
+
 	maybe_mkdir /root/.chef
 	# TODO(dw): Replace chef_server_url with ohai ipaddress
 	cat > /root/.chef/knife.rb <<-EOF
@@ -118,7 +121,7 @@ configure_knife() {
 	client_key               '/etc/chef-server/admin.pem'
 	validation_client_name   'chef-validator'
 	validation_key           '/etc/chef-server/chef-validator.pem'
-	chef_server_url          'https://localhost:4000'
+	chef_server_url          '$CHEF_SERVER_URL'
 	cache_options( :path => '/root/.chef/checksums' )
 	cookbook_path            [ '${RPCS_COOKBOOK_DIR}' ]
 	EOF
