@@ -16,7 +16,6 @@
     },
     "enable_monit": true,
     "monitoring" : {
-      "metric_provider" : "collectd",
       "procmon_provider" : "monit"
     },
     "glance": {
