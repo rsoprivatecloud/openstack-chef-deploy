@@ -113,7 +113,7 @@ configure_knife() {
 	local CHEF_SERVER_URL=https://$(ohai ipaddress | awk '/^ / {gsub(/ *\"/, ""); print; exit}'):4000
 
 	maybe_mkdir /root/.chef
-	# TODO(dw): Replace chef_server_url with ohai ipaddress
+
 	cat > /root/.chef/knife.rb <<-EOF
 	log_level                :info
 	log_location             STDOUT
