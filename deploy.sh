@@ -7,11 +7,11 @@ RPCS_DIR=${RPCS_DIR:-"/opt/rpcs"}
 RPCS_REPO_DIR=${RPCS_DIR}/chef-cookbooks
 RPCS_COOKBOOK_DIR=${RPCS_REPO_DIR}/cookbooks
 RPCS_COOKBOOK_REPO=${RPCS_COOKBOOK_REPO:-"https://github.com/rcbops/chef-cookbooks"}
-RPCS_COOKBOOK_BRANCH=${RPCS_COOKBOOK_BRANCH:-"grizzly"}
+RPCS_COOKBOOK_BRANCH=${RPCS_COOKBOOK_BRANCH:-"havana"}
 
 # Git tag to deploy from. If not set, it will default to the latest stable release.
 # Set to "none" to not checkout a tag and deploy from HEAD of RPCS_COOKBOOK_BRANCH.
-RPCS_COOKBOOK_TAG=${RPCS_COOKBOOK_TAG:-"v4.1.2"}
+RPCS_COOKBOOK_TAG=${RPCS_COOKBOOK_TAG:-"v4.2.1"}
 
 RPCS_TMP=$(mktemp -d /tmp/rpcs-XXXXXXX)
 
@@ -77,8 +77,8 @@ install_chef_server() {
 	local CHEF_RMQ_USER=chef
 	local CHEF_RMQ_VHOST=/chef
 	local CHEF_RMQ_PW=$(tr -dc a-zA-Z0-9 < /dev/urandom | head -c 24)
-	local CHEF_SERVER_DEB="${OPSCODE_BASE_URL}/ubuntu/12.04/x86_64/chef-server_11.0.8-1.ubuntu.12.04_amd64.deb"
-	local CHEF_SERVER_RPM="${OPSCODE_BASE_URL}/el/6/x86_64/chef-server-11.0.8-1.el6.x86_64.rpm"
+	local CHEF_SERVER_DEB="${OPSCODE_BASE_URL}/ubuntu/12.04/x86_64/chef-server_11.0.10-1.ubuntu.12.04_amd64.deb"
+	local CHEF_SERVER_RPM="${OPSCODE_BASE_URL}/el/6/x86_64/chef-server-11.0.10-1.el6.x86_64.rpm"
 
 
 	if is_rhel; then
@@ -99,6 +99,7 @@ install_chef_server() {
 	nginx["enable_non_ssl"] = true
 	rabbitmq["enable"] = false
 	rabbitmq["password"] = "$CHEF_RMQ_PW"
+	rabbitmq['vip'] = node['ipaddress']
 	bookshelf['url'] = "https://#{node['ipaddress']}:4000"
 	EOF
 
