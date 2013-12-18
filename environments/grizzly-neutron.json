@@ -58,7 +58,8 @@
         "cpu_allocation_ratio": 2.0,
         "disk_allocation_ratio": 1.0,
         "resume_guests_state_on_host_boot": false,
-        "use_single_default_gateway": false
+        "use_single_default_gateway": false,
+        "force_config_drive": true
       },
       "scheduler": {
         "default_filters": [
