@@ -1,0 +1,104 @@
+{
+  "name": "rpcs",
+  "description": "Environment for Rackspace Private Cloud (Havana)",
+  "cookbook_versions": {},
+  "json_class": "Chef::Environment",
+  "chef_type": "environment",
+  "default_attributes": {
+  },
+  "override_attributes": {
+    "rabbitmq": {
+      "open_file_limit": 4096,
+      "use_distro_version": false
+    },
+    "hardware": {
+      "install_oem": true
+    },
+    "enable_monit": true,
+    "monitoring" : {
+      "procmon_provider" : "monit"
+    },
+    "glance": {
+      "images": [
+        "cirros",
+        "precise"
+      ],
+      "image" : {
+        "cirros": "https://launchpad.net/cirros/trunk/0.3.0/+download/cirros-0.3.0-x86_64-disk.img",
+        "precise": "http://cloud-images.ubuntu.com/precise/current/precise-server-cloudimg-amd64-disk1.img"
+      },
+      "image_upload": false
+    },
+    "keystone": {
+      "tenants": [
+        "admin",
+        "service"
+      ],
+      "users": {
+        "admin": {
+          "password": "bItFsW7xY5w7sXTswipf6ONQ",
+          "roles": {
+            "admin": [
+              "admin"
+            ]
+          }
+        }
+      },
+      "admin_user": "admin",
+      "pki": {
+        "enabled": false
+      }
+    },
+    "nova": {
+      "libvirt": {
+        "vncserver_listen": "0.0.0.0"
+      },
+      "config": {
+        "ram_allocation_ratio": 1.0,
+        "cpu_allocation_ratio": 2.0,
+        "disk_allocation_ratio": 1.0,
+        "resume_guests_state_on_host_boot": false,
+        "use_single_default_gateway": false,
+        "force_config_drive": true
+      },
+      "scheduler": {
+        "default_filters": [
+          "AvailabilityZoneFilter",
+          "RamFilter",
+          "ComputeFilter",
+          "CoreFilter",
+          "SameHostFilter",
+          "DifferentHostFilter",
+          "RetryFilter",
+          "DiskFilter"
+        ]
+      },
+      "network": {
+        "provider": "neutron"
+      }
+    },
+    "neutron": {
+      "ovs": {
+        "provider_networks": [
+          {
+            "label": "ph-eth0",
+            "bridge": "br-eth0",
+            "vlans": "1024:1024"
+          }
+        ],
+        "network_type": "gre"
+      }
+    },
+    "mysql": {
+      "allow_remote_root": true,
+      "tunable": {
+        "log_queries_not_using_index": false
+      }
+    },
+    "osops_networks": {
+      "nova": "10.240.0.0/24",
+      "public": "10.240.0.0/24",
+      "management": "10.240.0.0/24"
+    }
+  }
+}
