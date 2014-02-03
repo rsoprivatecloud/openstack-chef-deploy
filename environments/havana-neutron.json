@@ -36,7 +36,7 @@
       ],
       "users": {
         "admin": {
-          "password": "bItFsW7xY5w7sXTswipf6ONQ",
+          "password": "__CHANGE_ME__",
           "roles": {
             "admin": [
               "admin"
