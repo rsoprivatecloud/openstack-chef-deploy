@@ -177,9 +177,6 @@ run_spiceweasel() {
 			apt-get install -y make gcc libxml2-dev libxslt1-dev
 		fi
 
-		# Chef and spiceweasel agree on json 1.7.7 as a dependency
-		${CHEF_GEM} uninstall -I json
-		${CHEF_GEM} install --no-ri --no-rdoc json --version 1.7.7
 		${CHEF_GEM} install --no-ri --no-rdoc spiceweasel
 		${CHEF_BIN_DIR}/spiceweasel -e --novalidation -T 3600 "$1"
 	fi
