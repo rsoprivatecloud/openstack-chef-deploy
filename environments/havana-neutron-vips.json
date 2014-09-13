@@ -42,6 +42,7 @@
     },
     "rabbitmq": {
       "open_file_limit": 4096,
+      "use_distro_version": false
     },
     "hardware": {
       "install_oem": true
@@ -131,6 +132,11 @@
       "nova": "10.240.0.0/24",
       "public": "10.240.0.0/24",
       "management": "10.240.0.0/24"
+    },
+    "osops": {
+      "sysctl": {
+         "nf_conntrack_max": "262144"
+      }
     }
   }
 }
